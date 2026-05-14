@@ -34,6 +34,7 @@ async function getLoginToken() : Promise<string>{
 }
 
 
+
 async function getBinDates(csrfToken: string) {
     try {
 
@@ -47,19 +48,21 @@ async function getBinDates(csrfToken: string) {
        
         await client.post('https://my.ecological.ie/Account/Login', formData);
 
-        const response = await client.get('https://my.ecological.ie/');
+        const response = await client.get('https://my.ecological.ie/Home/NextCollections');
+       // console.log(response);
         const $ = cheerio.load(response.data);
 
-        $('.info-box-content').each((i, element) => {
-            const date = $(element).find('.info-box-text').text().trim();
-            const type = $(element).find('.info-box-number').text().trim();
+        $('table tbody tr').each((i, element) => {
+            // We grab the text from the specific columns (td)
+            const date = $(element).find('td').eq(0).text().trim();
+            const day = $(element).find('td').eq(1).text().trim();
+            const type = $(element).find('td').eq(2).find('span').first().text().trim();
             
             if (date && type) {
-                console.log(`📅 ${type}: ${date}`);
+                console.log(`📅 ${date} (${day}): ${type}`);
             }
         });
-
-    } catch (error) {
+        } catch (error) {
         console.error("Error fetching data:", error);
     }
 }

@@ -11,10 +11,9 @@ const client = wrapper(axios.create({ jar }));
 async function main() {
     const csrfToken = await getLoginToken();
     await login(csrfToken);
+    await getAccountBalance();
     await getBinDates();
-    
 }
-
 
 
 async function getLoginToken() : Promise<string>{
@@ -57,7 +56,6 @@ async function login(csrfToken: string) {
 
 async function getBinDates() {
     try {
-
         const response = await client.get('https://my.ecological.ie/Home/NextCollections');
        // console.log(response);
         const $ = cheerio.load(response.data);
@@ -76,4 +74,21 @@ async function getBinDates() {
     }
 }
 
+async function getAccountBalance() {
+    try {
+        const response = await client.get('https://my.ecological.ie/');
+        const $ = cheerio.load(response.data);
+
+        const balance = $('#PayNowBox b').text().trim();
+
+        if (balance) {
+            console.log(`💰 Account Balance: ${balance}`);
+            return balance;
+        }
+    } catch (error) {
+        console.error("Error fetching balance:", error);
+    }
+}
+
 main();
+

@@ -10,7 +10,9 @@ const client = wrapper(axios.create({ jar }));
 
 async function main() {
     const csrfToken = await getLoginToken();
-    await getBinDates(csrfToken);
+    await login(csrfToken);
+    await getBinDates();
+    
 }
 
 
@@ -33,9 +35,7 @@ async function getLoginToken() : Promise<string>{
 
 }
 
-
-
-async function getBinDates(csrfToken: string) {
+async function login(csrfToken: string) {
     try {
 
         const formData = new URLSearchParams();
@@ -48,12 +48,21 @@ async function getBinDates(csrfToken: string) {
        
         await client.post('https://my.ecological.ie/Account/Login', formData);
 
+    }catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+
+
+async function getBinDates() {
+    try {
+
         const response = await client.get('https://my.ecological.ie/Home/NextCollections');
        // console.log(response);
         const $ = cheerio.load(response.data);
 
         $('table tbody tr').each((i, element) => {
-            // We grab the text from the specific columns (td)
             const date = $(element).find('td').eq(0).text().trim();
             const day = $(element).find('td').eq(1).text().trim();
             const type = $(element).find('td').eq(2).find('span').first().text().trim();

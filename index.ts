@@ -7,12 +7,28 @@ import 'dotenv/config';
 const jar = new CookieJar();
 const client = wrapper(axios.create({ jar }));
 
+interface BinData {
+    balance: string | null;
+    collections: { date: string; day: string; type: string }[];
+}
+
 
 async function main() {
+
+    const data : BinData = {
+        balance: null,
+        collections: []
+    };
+
+
+    // Get CSRF Token and log in 
     const csrfToken = await getLoginToken();
     await login(csrfToken);
-    await getAccountBalance();
-    await getBinDates();
+
+
+   data.balance = await getAccountBalance() ?? "Unknown" ;
+   await getBinDates(data);
+   console.log(data);
 }
 
 
@@ -54,7 +70,7 @@ async function login(csrfToken: string) {
 
 
 
-async function getBinDates() {
+async function getBinDates(data : BinData) {
     try {
         const response = await client.get('https://my.ecological.ie/Home/NextCollections');
        // console.log(response);
@@ -67,6 +83,12 @@ async function getBinDates() {
             
             if (date && type) {
                 console.log(`📅 ${date} (${day}): ${type}`);
+
+                data.collections.push({
+                    date: date,
+                    day: day,
+                    type: type
+                });
             }
         });
         } catch (error) {
@@ -87,6 +109,7 @@ async function getAccountBalance() {
         }
     } catch (error) {
         console.error("Error fetching balance:", error);
+        return null;
     }
 }
 

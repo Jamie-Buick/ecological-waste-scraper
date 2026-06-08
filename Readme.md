@@ -4,7 +4,7 @@ This is a Typescript-based Node.js script that scrapes your account balance and 
 ## Prerequisites
 * [Node.js](https://nodejs.org/) (LTS version recommended)
 * A [Home Assistant](https://www.home-assistant.io/) instance
-* An active account on `my.ecological.ie
+* An active account on my.ecological.ie
 
 
 ## Installation

@@ -20,7 +20,6 @@ async function main() {
         collections: []
     };
 
-
     // Get CSRF Token and log in 
     const csrfToken = await getLoginToken();
     await login(csrfToken);
@@ -28,7 +27,8 @@ async function main() {
 
    data.balance = await getAccountBalance() ?? "Unknown" ;
    await getBinDates(data);
-   console.log(data);
+
+   console.log(JSON.stringify(data));
 }
 
 
@@ -73,7 +73,6 @@ async function login(csrfToken: string) {
 async function getBinDates(data : BinData) {
     try {
         const response = await client.get('https://my.ecological.ie/Home/NextCollections');
-       // console.log(response);
         const $ = cheerio.load(response.data);
 
         $('table tbody tr').each((i, element) => {
@@ -82,7 +81,6 @@ async function getBinDates(data : BinData) {
             const type = $(element).find('td').eq(2).find('span').first().text().trim();
             
             if (date && type) {
-                console.log(`📅 ${date} (${day}): ${type}`);
 
                 data.collections.push({
                     date: date,
@@ -104,7 +102,6 @@ async function getAccountBalance() {
         const balance = $('#PayNowBox b').text().trim();
 
         if (balance) {
-            console.log(`💰 Account Balance: ${balance}`);
             return balance;
         }
     } catch (error) {

@@ -7,6 +7,9 @@ import 'dotenv/config';
 const jar = new CookieJar();
 const client = wrapper(axios.create({ jar }));
 
+const HA_URL = process.env.HA_URL; 
+const HA_TOKEN = process.env.HA_TOKEN;
+
 interface BinData {
     balance: string | null;
     collections: { date: string; day: string; type: string }[];
@@ -28,8 +31,33 @@ async function main() {
    data.balance = await getAccountBalance() ?? "Unknown" ;
    await getBinDates(data);
 
-   console.log(JSON.stringify(data));
+   //console.log(JSON.stringify(data));
+
+    // Send the array as an attribute
+    await updateHomeAssistant('input_text.binschedule', 'Updated', {
+        collections: data.collections 
+    });
+   
 }
+
+async function updateHomeAssistant(entityId: string, state: string, attributes: object) {
+  try {
+    await axios.post(
+      `${HA_URL}/api/states/${entityId}`,
+      { state: state, attributes: attributes },
+      {
+        headers: {
+          'Authorization': `Bearer ${HA_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    console.log(`Updated ${entityId} with ${Object.keys(attributes).length} collections.`);
+  } catch (error: any) {
+    console.error(`Failed to update ${entityId}:`, error.message);
+  }
+}
+
 
 
 async function getLoginToken() : Promise<string>{

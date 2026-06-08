@@ -35,6 +35,7 @@ async function main() {
 
     // Send the array as an attribute
     await updateHomeAssistant('input_text.binschedule', 'Updated', {
+        balance: data.balance,        // Top-level key
         collections: data.collections 
     });
    

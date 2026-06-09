@@ -32,9 +32,9 @@ async function main() {
    await getBinDates(data);
 
    //console.log(JSON.stringify(data));
-
+    const timestamp = new Date().toISOString();
     // Send the array as an attribute
-    await updateHomeAssistant('input_text.binschedule', 'Updated', {
+    await updateHomeAssistant('input_text.binschedule', timestamp, {
         balance: data.balance,        // Top-level key
         collections: data.collections 
     });
